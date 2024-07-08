@@ -25,10 +25,10 @@ fun QrisNavigation(navController: NavHostController) {
         navController = navController, startDestination = HOME_SCREEN
     ) {
         composable(route = QRIS_HOME) {
-            QrisScreen {}
+            QrisScreen(navHostController = navController)
         }
         composable(route = HOME_SCREEN) {
-            MainScreen {
+            MainScreen(navController) {
                 navController.navigate(it)
             }
         }

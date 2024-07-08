@@ -9,28 +9,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.qrisapp.R
+import androidx.navigation.NavHostController
 import com.example.qrisapp.feature.qrisscanner.ui.QrisScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun MainScreen(onClick: (String) -> Unit) {
+fun MainScreen(navHostController: NavHostController, onClick: (String) -> Unit) {
     val tabs = listOf("QRIS", "Promo", "Porto")
     val pagerState = rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
@@ -86,9 +83,7 @@ fun MainScreen(onClick: (String) -> Unit) {
             ) { page ->
                 Column(modifier = Modifier.fillMaxSize()) {
                     when (page) {
-                        0 -> QrisScreen {
-                            onClick(it)
-                        }
+                        0 -> QrisScreen(navHostController = navHostController)
 
                         1 -> HomeScreen()
                         2 -> HomeScreen()

@@ -19,45 +19,84 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 import com.example.qrisapp.R
 import com.example.qrisapp.core.design.theme.Color_199EFF
 import com.example.qrisapp.core.design.theme.Color_D1ECFF
 import com.example.qrisapp.core.design.theme.Color_F2F3F3
 import com.example.qrisapp.core.design.theme.QRISTheme
+import com.example.qrisapp.core.network.util.SideEffect
 import com.example.qrisapp.feature.main.ui.HomeScreenContent
 import com.example.qrisapp.feature.qrisscanner.QrisViewModel
+import com.example.qrisapp.feature.qrisscanner.data.model.ScannerModel
 import com.example.qrisapp.navigation.CAMERA_SCREEN
+import com.example.qrisapp.navigation.HOME_SCREEN
+import com.example.qrisapp.navigation.QRIS_HOME
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun QrisScreen(qrisViewModel: QrisViewModel = koinViewModel(), onClick: (String) -> Unit, ) {
-    val scannerResult by qrisViewModel.scannerState.collectAsStateWithLifecycle()
-    val state by qrisViewModel.state.collectAsState()
-
-    QrisContent(scannerResult) {
+fun QrisScreen(
+    qrisViewModel: QrisViewModel = hiltViewModel(),
+    navHostController: NavHostController
+) {
+    val state by qrisViewModel.state.collectAsStateWithLifecycle()
+    qrisViewModel.setBalance(500000L)
+    QrisContent(qrisViewModel, state, navHostController) {
         qrisViewModel.startScanning()
     }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun QrisContent(result: String, onClick: (String) -> Unit) {
+fun QrisContent(
+    qrisViewModel: QrisViewModel,
+    result: String,
+    navHostController: NavHostController,
+    onClick: (String) -> Unit
+) {
+    val userBalance by qrisViewModel.userBalance.collectAsState()
+    var showSheet by remember { mutableStateOf(false) }
+    var scanResult by remember {
+        mutableStateOf("")
+    }
+    scanResult = result
+    if (showSheet) {
+        BottomSheetPaymentInformation(scanResult) {
+            showSheet = false
+        }
+    }
+    LaunchedEffect(scanResult) {
+        if (scanResult.isNotBlank()) {
+            showSheet = true
+        }
+    }
+
     Scaffold() { innerPadding ->
         Column(
             modifier = Modifier
@@ -102,7 +141,7 @@ fun QrisContent(result: String, onClick: (String) -> Unit) {
                     .padding(top = 48.dp, bottom = 48.dp)
             ) {
                 Text(
-                    text = "Rp 2.000.000",
+                    text = userBalance.toString(),
                     color = Color.White,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally),

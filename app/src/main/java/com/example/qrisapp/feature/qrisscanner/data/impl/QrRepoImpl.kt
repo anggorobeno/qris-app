@@ -73,7 +73,7 @@ class QrRepoImpl(private val scanner: GmsBarcodeScanner) : QrRepo {
             }
 
             Barcode.TYPE_TEXT -> {
-                "text : ${barcode.rawValue}"
+                "${barcode.rawValue}"
             }
 
             Barcode.TYPE_UNKNOWN -> {

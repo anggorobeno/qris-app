@@ -1,6 +1,10 @@
+import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.jetbrains.kotlin.kapt)
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -30,11 +34,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -82,6 +86,11 @@ dependencies {
     implementation(libs.barcode.scanning)
     implementation(libs.barcode.scanning.gms)
     implementation(libs.text.recognition)
+    kapt(libs.hilt.compiler)
+    implementation(libs.hilt)
+    implementation(libs.hilt.compose)
     debugImplementation(libs.chucker)
     releaseImplementation(libs.chucker.noop)
+    implementation(libs.timber)
+    implementation(libs.datastore)
 }
