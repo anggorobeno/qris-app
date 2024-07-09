@@ -5,14 +5,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.qrisapp.feature.camera.ui.CameraScreen
-import com.example.qrisapp.feature.main.ui.HomeScreen
 import com.example.qrisapp.feature.main.ui.MainScreen
 import com.example.qrisapp.feature.qrisscanner.ui.QrisScreen
 
 
 const val QRIS_HOME = "qris-home"
 const val HOME_SCREEN = "home-screen"
-const val SCREEN = "screen"
 const val CAMERA_SCREEN = "camera-screen"
 
 val listScreen = listOf(
@@ -31,9 +29,6 @@ fun QrisNavigation(navController: NavHostController) {
             MainScreen(navController) {
                 navController.navigate(it)
             }
-        }
-        composable(route = SCREEN) {
-            HomeScreen()
         }
         composable(route = CAMERA_SCREEN) { CameraScreen() }
     }

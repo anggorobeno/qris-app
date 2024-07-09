@@ -1,10 +1,9 @@
-import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.jetbrains.kotlin.kapt)
     id("dagger.hilt.android.plugin")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -90,6 +89,7 @@ dependencies {
     implementation(libs.hilt)
     implementation(libs.hilt.compose)
     debugImplementation(libs.chucker)
+    implementation(libs.chucker.logging)
     releaseImplementation(libs.chucker.noop)
     implementation(libs.timber)
     implementation(libs.datastore)

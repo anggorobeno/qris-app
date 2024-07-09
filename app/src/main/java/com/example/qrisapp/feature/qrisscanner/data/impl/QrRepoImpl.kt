@@ -1,6 +1,7 @@
 package com.example.qrisapp.feature.qrisscanner.data.impl
 
-import com.example.qrisapp.feature.qrisscanner.data.api.QrRepo
+import com.example.qrisapp.feature.qrisscanner.data.model.ScannerModel
+import com.example.qrisapp.feature.qrisscanner.data.repo.QrRepo
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner
 import kotlinx.coroutines.channels.awaitClose
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
 class QrRepoImpl(private val scanner: GmsBarcodeScanner) : QrRepo {
-    override fun startScanning(): Flow<String> {
+    override fun startScanning(): Flow<ScannerModel> {
         return callbackFlow {
             scanner.startScan()
                 .addOnSuccessListener {
@@ -23,65 +24,36 @@ class QrRepoImpl(private val scanner: GmsBarcodeScanner) : QrRepo {
         }
     }
 
-    private fun getDetails(barcode: Barcode): String {
+    private fun getDetails(barcode: Barcode): ScannerModel {
         return when (barcode.valueType) {
-            Barcode.TYPE_WIFI -> {
-                val ssid = barcode.wifi!!.ssid
-                val password = barcode.wifi!!.password
-                val type = barcode.wifi!!.encryptionType
-                "ssid : $ssid, password : $password, type : $type"
-            }
-
-            Barcode.TYPE_URL -> {
-                "url : ${barcode.url!!.url}"
-            }
-
-            Barcode.TYPE_PRODUCT -> {
-                "productType : ${barcode.displayValue}"
-            }
-
-            Barcode.TYPE_EMAIL -> {
-                "email : ${barcode.email}"
-            }
-
-            Barcode.TYPE_CONTACT_INFO -> {
-                "contact : ${barcode.contactInfo}"
-            }
-
-            Barcode.TYPE_PHONE -> {
-                "phone : ${barcode.phone}"
-            }
-
-            Barcode.TYPE_CALENDAR_EVENT -> {
-                "calender event : ${barcode.calendarEvent}"
-            }
-
-            Barcode.TYPE_GEO -> {
-                "geo point : ${barcode.geoPoint}"
-            }
-
-            Barcode.TYPE_ISBN -> {
-                "isbn : ${barcode.displayValue}"
-            }
-
-            Barcode.TYPE_DRIVER_LICENSE -> {
-                "driving license : ${barcode.driverLicense}"
-            }
-
-            Barcode.TYPE_SMS -> {
-                "sms : ${barcode.sms}"
-            }
-
             Barcode.TYPE_TEXT -> {
-                "${barcode.rawValue}"
+                val result = "${barcode.rawValue}"
+                val model = ScannerModel()
+                result.split(".").forEachIndexed { index, item ->
+                    when (index) {
+                        0 -> {
+                            model.bankSender = item
+                        }
+
+                        1 -> {
+                            model.transactionId = item
+                        }
+
+                        2 -> {
+                            model.merchantName = item
+                        }
+
+                        3 -> {
+                            model.transactionAmount = item
+                        }
+                    }
+                }
+                return model
             }
 
-            Barcode.TYPE_UNKNOWN -> {
-                "unknown : ${barcode.rawValue}"
-            }
 
             else -> {
-                "Couldn't determine"
+                ScannerModel()
             }
         }
     }

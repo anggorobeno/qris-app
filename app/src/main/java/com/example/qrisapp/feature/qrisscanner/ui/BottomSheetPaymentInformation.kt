@@ -1,12 +1,9 @@
 package com.example.qrisapp.feature.qrisscanner.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,28 +28,8 @@ import com.example.qrisapp.feature.qrisscanner.data.model.ScannerModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetPaymentInformation(data: String, onDismiss: () -> Unit) {
+fun BottomSheetPaymentInformation(model: ScannerModel, onDismiss: () -> Unit) {
     val modalBottomSheetState = rememberModalBottomSheetState()
-    val model = ScannerModel()
-    data.split(".").forEachIndexed { index, item ->
-        when (index) {
-            0 -> {
-                model.bankSender = item
-            }
-
-            1 -> {
-                model.transactionId = item
-            }
-
-            2 -> {
-                model.merchantName = item
-            }
-
-            3 -> {
-                model.transactionAmount = item
-            }
-        }
-    }
 
     ModalBottomSheet(
         onDismissRequest = { onDismiss() },

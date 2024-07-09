@@ -1,5 +1,7 @@
 package com.example.qrisapp.core.extension
 
+import timber.log.Timber
+
 fun <T, U> List<T>.mapSafe(
     action: (T) -> U
 ): List<U> {
@@ -7,7 +9,7 @@ fun <T, U> List<T>.mapSafe(
         try {
             action(data)
         } catch (error: Throwable) {
-            printLog("mapSafe: $error")
+            Timber.d("mapSafe: $error")
             null
         }
     }.ifEmpty {

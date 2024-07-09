@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.qrisapp.feature.porto.ui.PortoScreen
+import com.example.qrisapp.feature.promo.ui.PromoScreen
 import com.example.qrisapp.feature.qrisscanner.ui.QrisScreen
 import kotlinx.coroutines.launch
 
@@ -85,8 +87,8 @@ fun MainScreen(navHostController: NavHostController, onClick: (String) -> Unit) 
                     when (page) {
                         0 -> QrisScreen(navHostController = navHostController)
 
-                        1 -> HomeScreen()
-                        2 -> HomeScreen()
+                        1 -> PromoScreen()
+                        2 -> PortoScreen()
                     }
                 }
             }

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import timber.log.Timber
 
 sealed interface UiState<out T> {
     object Init : UiState<Nothing>
@@ -24,10 +25,10 @@ suspend fun <T> MutableStateFlow<UiState<T>>.asUiState(tag: String = "", action:
     try {
         val data = action()
         this.update { UiState.Success(data) }
-        printLog("asUiState -> $tag: $data")
+        Timber.d("asUiState -> $tag: $data")
     } catch (error: Throwable) {
         this.update { UiState.Error(error) }
-        printLog("asUiState: -> $tag: $error")
+        Timber.d("asUiState: -> $tag: $error")
     }
 }
 
@@ -36,10 +37,10 @@ suspend fun <T> MutableSharedFlow<UiState<T>>.asUiState(tag: String = "", action
     try {
         val data = action()
         this.emit(UiState.Success(data))
-        printLog("asUiState -> $tag: $data")
+        Timber.d("asUiState -> $tag: $data")
     } catch (error: Throwable) {
         this.emit(UiState.Error(error))
-        printLog("asUiState: -> $tag: $error")
+        Timber.d("asUiState: -> $tag: $error")
     }
 }
 
@@ -48,10 +49,10 @@ fun <T> asFlow(tag: String = "", action: suspend () -> T): Flow<T> {
         try {
             val data = action()
             send(data)
-            printLog("asFlow -> $tag: $data")
+            Timber.d("asFlow -> $tag: $data")
             close()
         } catch (error: Throwable) {
-            printLog("asFlow: -> $tag: $error")
+            Timber.d("asFlow: -> $tag: $error")
             close()
         }
     }
@@ -60,15 +61,15 @@ fun <T> asFlow(tag: String = "", action: suspend () -> T): Flow<T> {
 fun <T> asFlowUiState(tag: String = "", action: suspend () -> T): Flow<UiState<T>> {
     return callbackFlow {
         send(UiState.Loading)
-        printLog("asFlowUiState -> $tag: Loading")
+        Timber.d("asFlowUiState -> $tag: Loading")
         try {
             val data = action()
             send(UiState.Success(data))
-            printLog("asFlowUiState -> $tag: $data")
+            Timber.d("asFlowUiState -> $tag: $data")
             close()
         } catch (error: Throwable) {
             send(UiState.Error(error))
-            printLog("asFlowUiState -> $tag: $error")
+            Timber.d("asFlowUiState -> $tag: $error")
             close()
         }
     }

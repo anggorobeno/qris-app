@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">QRIS App</string>
+    <string name="try_again">Try Again</string>
+    <string name="error">Error</string>
+    <string name="date">Date</string>
+    <string name="nominal">Nominal</string>
+    <string name="total_balance">Total Balance</string>
 </resources>

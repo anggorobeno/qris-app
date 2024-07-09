@@ -20,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,33 +30,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
 import com.example.qrisapp.R
 import com.example.qrisapp.core.design.theme.Color_199EFF
 import com.example.qrisapp.core.design.theme.Color_D1ECFF
 import com.example.qrisapp.core.design.theme.Color_F2F3F3
-import com.example.qrisapp.core.design.theme.QRISTheme
-import com.example.qrisapp.core.network.util.SideEffect
-import com.example.qrisapp.feature.main.ui.HomeScreenContent
 import com.example.qrisapp.feature.qrisscanner.QrisViewModel
 import com.example.qrisapp.feature.qrisscanner.data.model.ScannerModel
 import com.example.qrisapp.navigation.CAMERA_SCREEN
-import com.example.qrisapp.navigation.HOME_SCREEN
-import com.example.qrisapp.navigation.QRIS_HOME
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import timber.log.Timber
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -65,9 +54,9 @@ fun QrisScreen(
     qrisViewModel: QrisViewModel = hiltViewModel(),
     navHostController: NavHostController
 ) {
+    qrisViewModel.setBalance(5000000L)
     val state by qrisViewModel.state.collectAsStateWithLifecycle()
-    qrisViewModel.setBalance(500000L)
-    QrisContent(qrisViewModel, state, navHostController) {
+    QrisContent(qrisViewModel, state) {
         qrisViewModel.startScanning()
     }
 }
@@ -76,24 +65,24 @@ fun QrisScreen(
 @Composable
 fun QrisContent(
     qrisViewModel: QrisViewModel,
-    result: String,
-    navHostController: NavHostController,
+    result: ScannerModel,
     onClick: (String) -> Unit
 ) {
     val userBalance by qrisViewModel.userBalance.collectAsState()
     var showSheet by remember { mutableStateOf(false) }
-    var scanResult by remember {
+    var bankSender by remember {
         mutableStateOf("")
     }
-    scanResult = result
+    bankSender = result.bankSender
     if (showSheet) {
-        BottomSheetPaymentInformation(scanResult) {
+        BottomSheetPaymentInformation(result) {
             showSheet = false
         }
     }
-    LaunchedEffect(scanResult) {
-        if (scanResult.isNotBlank()) {
+    LaunchedEffect(bankSender) {
+        if (bankSender.isNotBlank()) {
             showSheet = true
+            qrisViewModel.setBalance(userBalance - result.transactionAmount.toLong())
         }
     }
 
@@ -141,7 +130,7 @@ fun QrisContent(
                     .padding(top = 48.dp, bottom = 48.dp)
             ) {
                 Text(
-                    text = userBalance.toString(),
+                    text = "Rp $userBalance",
                     color = Color.White,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally),
@@ -149,7 +138,7 @@ fun QrisContent(
                 )
                 Spacer(modifier = Modifier.size(2.dp))
                 Text(
-                    text = "Total Balance",
+                    text = stringResource(id = R.string.total_balance),
                     color = Color.White,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally),
@@ -212,16 +201,6 @@ fun requestCameraPermission(permissionState: PermissionState, onClick: (String) 
         onClick(CAMERA_SCREEN)
     } else {
         permissionState.run { launchPermissionRequest() }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewHomeScreen() {
-    QRISTheme {
-        HomeScreenContent(
-            onClick = {}
-        )
     }
 }
 
